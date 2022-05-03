@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    sybok {
+        canBeResolved = true
+        canBeConsumed = false
+        shouldResolveConsistentlyWith runtimeClasspath
+    }
+}
+
+dependencies {
+    sybok platform('org.junit:junit-bom:5.8.2')
+    implementation platform('org.junit:junit-bom:5.8.2')
+
+    // dependencies required by out tests
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+
+    // Sybok and JUnit console runtime libs
+    sybok ('io.github.alopukhov.sybok:sybok-engine:0.1.0') {
+        exclude group: '*'
+    }
+    sybok 'org.junit.platform:junit-platform-console:1.8.2'
+}
+
+test {
+    enabled = false
+    useJUnitPlatform()
+}
+
+application {
+    mainClass = 'org.junit.platform.console.ConsoleLauncher'
+    applicationDefaultJvmArgs = ['-Xmx256m', '-Xms256m']
+    applicationDistribution.with copySpec {
+        into ('specs') {
+            from project.layout.projectDirectory.dir("src/test/groovy")
+        }
+        into ('lib') {
+            from configurations.sybok
+            duplicatesStrategy = 'EXCLUDE'
+        }
+    }
+}
+
+tasks.named('startScripts', CreateStartScripts).configure {
+    classpath += configurations.sybok
+    applicationName = "run-launcher"
+}
