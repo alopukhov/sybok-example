@@ -6,4 +6,5 @@ SET SCRIPT_DIR=%~dp0
 --config "sybok.script-roots=%SCRIPT_DIR%\specs" ^
 -e sybok-engine ^
 --disable-banner ^
---disable-ansi-colors %*
+--disable-ansi-colors ^
+-n ".*Spec" %*

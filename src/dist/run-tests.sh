@@ -6,4 +6,5 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 "${SCRIPT_DIR}/bin/run-launcher" \
 --config "sybok.script-roots=${SCRIPT_DIR}/specs" \
 -e sybok-engine \
---disable-banner "$@"
+--disable-banner \
+-n ".*Spec" "$@"
