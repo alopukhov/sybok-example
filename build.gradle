@@ -1,6 +1,5 @@
 plugins {
-    id 'java'
-    id 'application'
+    id 'distribution'
     id 'groovy'
 }
 
@@ -13,52 +12,51 @@ repositories {
             snapshotsOnly()
         }
     }
-    mavenLocal()
+//    mavenLocal()
 }
 
-configurations {
-    sybok {
-        extendsFrom runtimeClasspath
-        canBeResolved = true
-        canBeConsumed = false
-    }
+sourceSets {
+    sybok { }
 }
 
 dependencies {
-    implementation platform('org.junit:junit-bom:5.8.2')
+    sybokImplementation platform('org.junit:junit-bom:5.8.2')
 
     // dependencies required by out tests
-    implementation 'com.google.guava:guava:31.1-jre'
-    implementation 'org.spockframework:spock-core:2.1-groovy-3.0'
-    implementation 'org.junit.jupiter:junit-jupiter'
-    implementation 'junit:junit:4.12'
-    runtimeOnly 'org.junit.vintage:junit-vintage-engine'
+    sybokImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+    sybokImplementation 'org.junit.jupiter:junit-jupiter'
+    sybokImplementation 'junit:junit:4.13.2'
 
-    // Sybok and JUnit console runtime libs
-    sybok 'io.github.alopukhov.sybok:sybok-engine:0.3.0'
-    sybok 'org.junit.platform:junit-platform-console'
+    // dependencies to run tests
+    sybokRuntimeOnly 'io.github.alopukhov.sybok:sybok-engine:0.3.0'
+    sybokRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+    sybokRuntimeOnly 'org.junit.platform:junit-platform-console'
 }
 
-test {
-    enabled = false
-    useJUnitPlatform()
-}
-
-application {
+tasks.register('startScripts', CreateStartScripts).configure {
+    outputDir = file("${project.buildDir}/scripts")
+    classpath = files('*')
+    // more conservative option is
+    // classpath = configurations.sybokRuntimeClasspath
+    applicationName = 'run-junit-console'
+    optsEnvironmentVar = 'SYBOK_OPTS'
     mainClass = 'org.junit.platform.console.ConsoleLauncher'
-    applicationDefaultJvmArgs = ['-Xmx256m', '-Xms256m']
-    applicationDistribution.with copySpec {
-        into ('specs') {
-            from project.layout.projectDirectory.dir("src/test/groovy")
-        }
-        into ('lib') {
-            from configurations.sybok
-            duplicatesStrategy = 'EXCLUDE'
+    defaultJvmOpts = ['-Xmx256m']
+}
+
+distributions {
+    main {
+        distributionBaseName = 'sybok-example'
+        contents {
+            into('lib') {
+                from configurations.sybokRuntimeClasspath
+            }
+            into('bin') {
+                from project.tasks.named('startScripts')
+            }
+            into('tests') {
+                from sourceSets.sybok.groovy
+            }
         }
     }
-}
-
-tasks.named('startScripts', CreateStartScripts).configure {
-    classpath = configurations.sybok
-    applicationName = "run-launcher"
 }
