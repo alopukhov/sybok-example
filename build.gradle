@@ -23,7 +23,15 @@ dependencies {
     sybokImplementation platform('org.junit:junit-bom:5.8.2')
 
     // dependencies required by out tests
-    sybokImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+    sybokImplementation('org.spockframework:spock-core:2.1-groovy-3.0') {
+        exclude group: 'org.jetbrains', module: 'annotations'
+        exclude group: 'org.junit.platform', module: 'junit-platform-testkit'
+        // no mocking in tests
+        exclude group: 'cglib'
+        exclude group: 'org.objenesis'
+        exclude group: 'org.ow2.asm'
+        exclude group: 'net.bytebuddy'
+    }
     sybokImplementation 'org.junit.jupiter:junit-jupiter'
     sybokImplementation 'junit:junit:4.13.2'
 
@@ -31,6 +39,12 @@ dependencies {
     sybokRuntimeOnly 'io.github.alopukhov.sybok:sybok-engine:0.3.0'
     sybokRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
     sybokRuntimeOnly 'org.junit.platform:junit-platform-console'
+
+    modules {
+        module("org.hamcrest:hamcrest-core") {
+            replacedBy("org.hamcrest:hamcrest")
+        }
+    }
 }
 
 tasks.register('startScripts', CreateStartScripts).configure {
