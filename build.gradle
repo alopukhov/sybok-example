@@ -6,29 +6,37 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven {
+        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+        mavenContent {
+            includeGroup 'io.github.alopukhov.sybok'
+            snapshotsOnly()
+        }
+    }
+    mavenLocal()
 }
 
 configurations {
     sybok {
+        extendsFrom runtimeClasspath
         canBeResolved = true
         canBeConsumed = false
-        shouldResolveConsistentlyWith runtimeClasspath
     }
 }
 
 dependencies {
-    sybok platform('org.junit:junit-bom:5.8.2')
     implementation platform('org.junit:junit-bom:5.8.2')
 
     // dependencies required by out tests
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+    implementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'junit:junit:4.12'
+    runtimeOnly 'org.junit.vintage:junit-vintage-engine'
 
     // Sybok and JUnit console runtime libs
-    sybok ('io.github.alopukhov.sybok:sybok-engine:0.2.0') {
-        exclude group: '*'
-    }
-    sybok 'org.junit.platform:junit-platform-console:1.8.2'
+    sybok 'io.github.alopukhov.sybok:sybok-engine:0.3.0'
+    sybok 'org.junit.platform:junit-platform-console'
 }
 
 test {
@@ -51,6 +59,6 @@ application {
 }
 
 tasks.named('startScripts', CreateStartScripts).configure {
-    classpath += configurations.sybok
+    classpath = configurations.sybok
     applicationName = "run-launcher"
 }

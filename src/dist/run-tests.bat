@@ -7,4 +7,6 @@ SET SCRIPT_DIR=%~dp0
 -e sybok-engine ^
 --disable-banner ^
 --disable-ansi-colors ^
--n ".*Spec" %*
+-n ".*Spec" ^
+-n ".*Test" ^
+%*

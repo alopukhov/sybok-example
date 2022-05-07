@@ -1,4 +1,4 @@
-package acme
+package spock.acme
 
 import spock.lang.*
 

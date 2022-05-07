@@ -1,4 +1,4 @@
-package guava
+package spock.guava
 
 import com.google.common.primitives.Ints
 

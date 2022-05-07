@@ -1,4 +1,4 @@
-package guava
+package spock.guava
 
 import spock.lang.Specification
 
